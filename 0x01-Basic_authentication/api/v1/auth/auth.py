@@ -47,4 +47,13 @@ class Auth:
         """
         authorization_header
         """
+        print(request)
+        if request is None:
+            return None
+
+        if 'Authorization' not in request.headers:
+            return None
+        else:
+            return request.headers.get('Authorization')
+        
         return None
