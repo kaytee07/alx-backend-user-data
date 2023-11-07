@@ -18,7 +18,7 @@ auth = None
 auth_type = getenv('AUTH_TYPE', 'auth')
 if auth_type == 'auth':
     auth = Auth()
-    
+
 if auth_type == 'basic_auth':
     auth = BasicAuth()
 
@@ -36,13 +36,14 @@ def before_request():
                       '/api/v1/forbidden/']
 
     path = request.path
-    
+
     if auth.require_auth(path, excluded_paths):
         if auth.authorization_header(request) is None:
             abort(401)
-        
+
         if auth.current_user(request) is None:
             abort(403)
+
 
 @app.errorhandler(401)
 def unauthorized(error) -> str:
