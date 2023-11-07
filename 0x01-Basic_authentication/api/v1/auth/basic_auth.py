@@ -19,17 +19,14 @@ class BasicAuth(Auth):
         """
         encode authorization_header with base64
         """
-        if authorization_header is None:
-            return None
-
-        if type(authorization_header) is not str:
-            return None
-
-        parts = authorization_header.split(' ')
-        if parts[0] != 'Basic':
-            return None
-        else:
-            return parts[1]
+        if decoded_base64_authorization_header is None:
+            return None, None
+        if not isinstance(decoded_base64_authorization_header, str):
+            return None, None
+        if ':' not in decoded_base64_authorization_header:
+            return None, None
+        credentials = decoded_base64_authorization_header.split(':', 1)
+        return credentials[0], credentials[1]
 
     def decode_base64_authorization_header(
             self,
