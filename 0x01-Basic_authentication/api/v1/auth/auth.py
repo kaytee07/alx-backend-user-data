@@ -32,7 +32,7 @@ class Auth:
                     pattern = '{}/*'.format(exclusion_path)
                 if re.match(pattern, path):
                     return False
-        return True
+        return False
 
     def current_user(self, request=None) -> TypeVar('User'):
         """
