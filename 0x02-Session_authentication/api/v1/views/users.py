@@ -7,6 +7,7 @@ from models.user import User
 from api.v1.app import auth
 import base64
 
+
 @app_views.route('/users', methods=['GET'], strict_slashes=False)
 def view_all_users() -> str:
     """ GET /api/v1/users
@@ -128,14 +129,12 @@ def update_user(user_id: str = None) -> str:
     user.save()
     return jsonify(user.to_json()), 200
 
+
 @app_views.route('/users/me', methods=['GET'], strict_slashes=False)
 def get_user():
     """
     get current user
     """
-    encoded = auth.extract_base64_authorization_header(request.headers.get('Authorization'))
-    decoded_byte_data = base64.b64decode(encoded)
-    decode_to_str = decoded_byte_data.decode('utf-8')
-    email, password = auth.extract_user_credentials(decode_to_str)
-    user_object = auth.user_object_from_credentials(email, password)
-    return jsonify(user_object.to_json()), 200
+    print('caro')
+    user = auth.current_user(request)
+    return jsonify(user.to_json()), 200
