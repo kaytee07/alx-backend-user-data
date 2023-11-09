@@ -6,6 +6,7 @@ from .auth import Auth
 import uuid
 from models.user import User
 
+
 class SessionAuth(Auth):
     """
     session_authentication
@@ -16,12 +17,12 @@ class SessionAuth(Auth):
         """
         creates a session_id for a user
         """
-        
+
         if type(user_id) is str:
             session_id = uuid.uuid4().hex
             self.user_id_by_session_id[session_id] = user_id
             return session_id
-        
+
         return None
 
     def user_id_for_session_id(self, session_id: str = None) -> str:
@@ -56,7 +57,7 @@ class SessionAuth(Auth):
         session_id = self.session_cookie(request)
         if session_id is None:
             return False
-        
+
         user_id = self.user_id_for_session_id(session_id)
         print(user_id)
         if user_id is None:

@@ -20,10 +20,10 @@ def create_session():
     password = request.form.get('password')
 
     if not email:
-        return({ "error": "email missing" }), 400
+        return({"error": "email missing"}), 400
 
     if not password:
-        return jsonify({ "error": "password missing" }), 400
+        return jsonify({"error": "password missing"}), 400
 
     try:
         user = User.search({'email': email})
@@ -40,8 +40,8 @@ def create_session():
     return jsonify({"error": "wrong password"}), 401
 
 
-@app_views.route('/auth_session/logout'
-                 , methods=['DELETE'], strict_slashes=False)
+@app_views.route('/auth_session/logout',
+                 methods=['DELETE'], strict_slashes=False)
 def logout():
     """
     logout of session
