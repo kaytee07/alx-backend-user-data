@@ -42,7 +42,24 @@ class SessionAuth(Auth):
         """
         session_id = self.session_cookie(request)
         user_id = self.user_id_for_session_id(session_id)
-        if user_id is not None:
-            return User(user_id)
-        return None
+        if user_id is None:
+            return None
+        return User(user_id)
 
+    def destroy_session(self, request=None):
+        """
+        destroy a session
+        """
+        if request is None:
+            return False
+
+        session_id = self.session_cookie(request)
+        if session_id is None:
+            return False
+        
+        user_id = self.user_id_for_session_id(session_id)
+        print(user_id)
+        if user_id is None:
+            return False
+
+        del self.user_id_by_session_id[session_id]
