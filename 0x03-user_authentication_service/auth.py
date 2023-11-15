@@ -88,7 +88,7 @@ class Auth:
         except NoResultFound:
             return
 
-    def get_user_from_session_id(session_id):
+    def get_user_from_session_id(self, session_id):
         """
         takes session_id and returns the user
         """
@@ -99,7 +99,7 @@ class Auth:
             return None
         return None
 
-    def destroy_session(user_id):
+    def destroy_session(self, user_id):
         """
         set session_id of a user to None
         """

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request, abort, redirect
 from auth import Auth
 
 
@@ -39,7 +39,29 @@ def login():
         return response
     else:
         abort(401)
-    
+
+@app.route("/sessions", methods=["DELETE"], strict_slashes=False)
+def logout():
+    """
+    find user with session_id and destroy the users session_id
+    """
+    session_id = request.cookie.get('session_id')
+    user = AUTH.get_user_from_session_id(session_id)
+    if user is None:
+        abort(403)
+    AUTH.destroy_session(user.id)
+    redirect("/")
+
+@app.route("/profile", methods=["GET"], strict_slashes=False)
+def profile():
+    """
+    get user profile
+    """
+    session_id = request.cookies.get('session_id')
+    if session_id is None:
+        abort(403)
+    user = AUTH.get_user_from_session_id(session_id)
+    return jsonify({"email": f"{user.emaila}"}), 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")
