@@ -26,7 +26,8 @@ def _hash_password(password):
 
 
 class Auth:
-    """Auth class to interact with the authentication database.
+    """
+    Auth class to interact with the authentication database.,
     """
 
     def __init__(self):
@@ -86,3 +87,21 @@ class Auth:
             return user.session_id
         except NoResultFound:
             return
+
+    def get_user_from_session_id(session_id):
+        """
+        takes session_id and returns the user
+        """
+        try:
+            user = self._db.find_user_by(session_id=session_id)
+            return user
+        except NoResultFound:
+            return None
+        return None
+
+    def destroy_session(user_id):
+        """
+        set session_id of a user to None
+        """
+        user = self._db.update_user(user_id, session_id=None)
+        return None
