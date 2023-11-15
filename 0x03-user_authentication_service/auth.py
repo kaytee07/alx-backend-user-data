@@ -6,6 +6,7 @@ and returns bytes.
 import bcrypt
 from db import DB
 from sqlalchemy.orm.exc import NoResultFound
+import uuid
 
 
 def _hash_password(password):
@@ -67,9 +68,21 @@ class Auth:
             return False
         return False
 
-    def _generate_uuid():
+    def _generate_uuid(self):
         """
         generate uuid and return it as a string
         """
         generated_uuid = uuid.uuid4()
-        return string(generated_uuid)
+        return str(generated_uuid)
+
+    def create_session(self, email):
+        """
+        create session_id
+        """
+        try:
+            user = self._db.find_user_by(email=email)
+            generated_uuid = self._generate_uuid()
+            self._db.update_user(user.id, session_id=generated_uuid)
+            return user.session_id
+        except NoResultFound:
+            return
