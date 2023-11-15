@@ -1,3 +1,4 @@
+#!/user/bin/env python3
 """DB module
 """
 from sqlalchemy import create_engine
@@ -63,6 +64,7 @@ class DB:
         find user by id and update user with new details
         """
         user = self.find_user_by(id=user_id)
+        update_source = {}
         if user:
             for key, value in kwargs.items():
                 if hasattr(User, key):
