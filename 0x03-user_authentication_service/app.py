@@ -1,4 +1,7 @@
  #!/usr/bin/env python3
+ """
+ flask-app for user authentication service
+ """
 from flask import Flask, jsonify, request, abort, redirect
 from auth import Auth
 
@@ -74,6 +77,24 @@ def get_reset_password_token():
     token = AUTH.get_reset_password_token(email)
     return jsonify({"email": f"{email}",
                     "reset_token": f"{token}"})
+
+@app.route("/reset_password", methods=["PUT"], strict_slashes=False)
+def update_password():
+    """
+    reset password
+    """
+    email = request.form.get('email')
+    reset_token = request.form.get('reset_token')
+    password = request.form.get('new_password')
+    is_password_changed = False
+    try:
+        AUTH.update_password(reset_token, new_password)
+        is_password_changed = True
+    except ValueError:
+        is_password_changed = False
+    if not is_password_changed:
+        abort(403)
+    return jsonify({"email": email, "message": "Password updated"})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")
