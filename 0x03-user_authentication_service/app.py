@@ -73,7 +73,7 @@ def profile():
 
 
 @app.route("/reset_password", methods=["POST"], strict_slashes=False)
-def get_reset_password_token():
+def get_reset_password_token() -> str:
     """
     get reset password token from db
     """
