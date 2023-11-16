@@ -5,11 +5,12 @@ and returns bytes.
 """
 import bcrypt
 from db import DB
+from user import User
 from sqlalchemy.orm.exc import NoResultFound
 import uuid
 
 
-def _hash_password(password):
+def _hash_password(password: str) -> bytes:
     """
     accept a string as password and returns a hashed password in
     bytes
@@ -24,6 +25,13 @@ def _hash_password(password):
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
     return hashed_password
 
+def _generate_uuid(self):
+        """
+        generate uuid and return it as a string
+        """
+        generated_uuid = uuid.uuid4()
+        return str(generated_uuid)
+
 
 class Auth:
     """
@@ -33,7 +41,7 @@ class Auth:
     def __init__(self):
         self._db = DB()
 
-    def register_user(self, email, password):
+    def register_user(self, email: str, password:str) -> User:
         """
         add new user to the database
         """
@@ -68,13 +76,6 @@ class Auth:
         except NoResultFound:
             return False
         return False
-
-    def _generate_uuid(self):
-        """
-        generate uuid and return it as a string
-        """
-        generated_uuid = uuid.uuid4()
-        return str(generated_uuid)
 
     def create_session(self, email):
         """
@@ -116,3 +117,17 @@ class Auth:
         token = self._generate_uuid()
         self._db.update_user(user.id, reset_token=token)
         return user.reset_token
+
+    def update_password(self, reset_token, password):
+        """
+        update password in database with reset token
+        """
+        try:
+            user = self._db.find_user_by(reset_token=reset_token)
+            hashed_password = _hash_password(password)
+            self._db.update_user(user.id,
+                                 password=hashed_password)
+            self._db.update_user(user.id, reset_token=None)
+        except NoResultFound:
+            raise ValueError
+        return None
