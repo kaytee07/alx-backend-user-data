@@ -1,12 +1,13 @@
-#!/user/bin/env python3
+#!/usr/bin/env python3
 """DB module
 """
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
-
-from user import Base
+from user import Base, User
+from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy.orm.exc import NoResultFound
 
 
 class DB:
@@ -29,3 +30,47 @@ class DB:
             DBSession = sessionmaker(bind=self._engine)
             self.__session = DBSession()
         return self.__session
+
+    def add_user(self, email: str, hashed_password: str) -> User:
+        """
+        add new user to the database
+        """
+        try:
+            new_user = User(email=email, hashed_password=hashed_password)
+            self._session.add(new_user)
+            self._session.commit()
+        except Exception:
+            self._session.rollback()
+            new_user = None
+        return new_user
+
+    def find_user_by(self, **kwargs) -> User:
+        """
+        find user by certain key constraint
+        """
+        query = self._session.query(User)
+        for key, value in kwargs.items():
+            if hasattr(User, key):
+                query = query.filter(getattr(User, key) == value)
+            else:
+                raise InvalidRequestError()
+        user = query.first()
+        if user is None:
+            raise NoResultFound()
+        return user
+
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """
+        find user by id and update user with new details
+        """
+        user = self.find_user_by(id=user_id)
+        update_source = {}
+        if user:
+            for key, value in kwargs.items():
+                if hasattr(User, key):
+                    setattr(user, key, value)
+                else:
+                    raise ValueError()
+            self._session.commit()
+        else:
+            return
