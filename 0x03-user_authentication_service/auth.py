@@ -116,11 +116,12 @@ class Auth:
         """
         get reset password token
         """
-        user = self._db.find_user_by(session_id=session_id)
-        if user is None:
+        try:
+            user = self._db.find_user_by(session_id=session_id)
+            token = _generate_uuid()
+            self._db.update_user(user.id, reset_token=token)
+        except NoResultFound:
             raise ValueError
-        token = _generate_uuid()
-        self._db.update_user(user.id, reset_token=token)
         return user.reset_token
 
     def update_password(self, reset_token: str, password: str) -> None:
