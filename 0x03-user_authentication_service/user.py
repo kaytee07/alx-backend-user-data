@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-
+"""
+the user model's module
+"""
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
