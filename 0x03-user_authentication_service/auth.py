@@ -56,7 +56,7 @@ class Auth:
             registered_user = self._db.add_user(email, hashed_password)
             return registered_user
 
-    def valid_login(self, email, password):
+    def valid_login(self, email:str, password:str) -> bool:
         """
         validate user credentials
 
@@ -84,13 +84,13 @@ class Auth:
         """
         try:
             user = self._db.find_user_by(email=email)
-            generated_uuid = self._generate_uuid()
-            self._db.update_user(user.id, session_id=generated_uuid)
-            return user.session_id
         except NoResultFound:
-            return
+            return None
+        generated_uuid = self._generate_uuid()
+        self._db.update_user(user.id, session_id=generated_uuid)
+        return user.session_id
 
-    def get_user_from_session_id(self, session_id):
+    def get_user_from_session_id(self, session_id: str) -> User:
         """
         takes session_id and returns the user
         """
@@ -101,25 +101,25 @@ class Auth:
             return None
         return None
 
-    def destroy_session(self, user_id):
+    def destroy_session(self, user_id:str) -> None:
         """
         set session_id of a user to None
         """
         user = self._db.update_user(user_id, session_id=None)
         return None
 
-    def get_reset_password_token(self, email):
+    def get_reset_password_token(self, email: str) -> str:
         """
         get reset password token
         """
         user = self._db.find_user_by(session_id=session_id)
         if user is None:
             raise ValueError
-        token = self._generate_uuid()
+        token = _generate_uuid()
         self._db.update_user(user.id, reset_token=token)
         return user.reset_token
 
-    def update_password(self, reset_token, password):
+    def update_password(self, reset_token: str, password: str) -> None:
         """
         update password in database with reset token
         """
