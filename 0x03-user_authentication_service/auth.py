@@ -25,12 +25,13 @@ def _hash_password(password: str) -> bytes:
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
     return hashed_password
 
-def _generate_uuid(self):
-        """
-        generate uuid and return it as a string
-        """
-        generated_uuid = uuid.uuid4()
-        return str(generated_uuid)
+
+def _generate_uuid() -> str:
+    """
+    generate uuid and return it as a string
+    """
+    generated_uuid = uuid.uuid4()
+    return str(generated_uuid)
 
 
 class Auth:
@@ -41,7 +42,7 @@ class Auth:
     def __init__(self):
         self._db = DB()
 
-    def register_user(self, email: str, password:str) -> User:
+    def register_user(self, email: str, password: str) -> User:
         """
         add new user to the database
         """
