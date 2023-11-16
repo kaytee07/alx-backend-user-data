@@ -56,7 +56,7 @@ class Auth:
             registered_user = self._db.add_user(email, hashed_password)
             return registered_user
 
-    def valid_login(self, email:str, password:str) -> bool:
+    def valid_login(self, email: str, password: str) -> bool:
         """
         validate user credentials
 
@@ -82,13 +82,16 @@ class Auth:
         """
         create session_id
         """
+        user = None
         try:
             user = self._db.find_user_by(email=email)
         except NoResultFound:
             return None
-        generated_uuid = self._generate_uuid()
-        self._db.update_user(user.id, session_id=generated_uuid)
-        return user.session_id
+        if user is None:
+            return None
+        session_id = _generate_uuid()
+        self._db.update_user(user.id, session_id=session_id)
+        return session_id
 
     def get_user_from_session_id(self, session_id: str) -> User:
         """
@@ -101,7 +104,7 @@ class Auth:
             return None
         return None
 
-    def destroy_session(self, user_id:str) -> None:
+    def destroy_session(self, user_id: str) -> None:
         """
         set session_id of a user to None
         """
