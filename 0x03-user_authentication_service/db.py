@@ -1,30 +1,31 @@
-#!/user/bin/env python3
-"""DB module
+#!/usr/bin/env python3
+"""DB module.
 """
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, tuple_
+from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.session import Session
-from user import Base, User
-from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.session import Session
+
+from user import Base, User
 
 
 class DB:
-    """DB class
+    """DB class.
     """
 
     def __init__(self) -> None:
-        """Initialize a new DB instance
+        """Initialize a new DB instance.
         """
-        self._engine = create_engine("sqlite:///a.db", echo=True)
+        self._engine = create_engine("sqlite:///a.db", echo=False)
         Base.metadata.drop_all(self._engine)
         Base.metadata.create_all(self._engine)
         self.__session = None
 
     @property
     def _session(self) -> Session:
-        """Memoized session object
+        """Memoized session object.
         """
         if self.__session is None:
             DBSession = sessionmaker(bind=self._engine)
@@ -32,8 +33,7 @@ class DB:
         return self.__session
 
     def add_user(self, email: str, hashed_password: str) -> User:
-        """
-        add new user to the database
+        """Adds a new user to the database.
         """
         try:
             new_user = User(email=email, hashed_password=hashed_password)
@@ -45,32 +45,36 @@ class DB:
         return new_user
 
     def find_user_by(self, **kwargs) -> User:
+        """Finds a user based on a set of filters.
         """
-        find user by certain key constraint
-        """
-        query = self._session.query(User)
+        fields, values = [], []
         for key, value in kwargs.items():
             if hasattr(User, key):
-                query = query.filter(getattr(User, key) == value)
+                fields.append(getattr(User, key))
+                values.append(value)
             else:
                 raise InvalidRequestError()
-        user = query.first()
-        if user is None:
+        result = self._session.query(User).filter(
+            tuple_(*fields).in_([tuple(values)])
+        ).first()
+        if result is None:
             raise NoResultFound()
-        return user
+        return result
 
-    def update_user(self, user_id, **kwargs):
-        """
-        find user by id and update user with new details
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """Updates a user based on a given id.
         """
         user = self.find_user_by(id=user_id)
-        update_source = {}
-        if user:
-            for key, value in kwargs.items():
-                if hasattr(User, key):
-                    setattr(user, key, value)
-                else:
-                    raise ValueError()
-            self._session.commit()
-        else:
+        if user is None:
             return
+        update_source = {}
+        for key, value in kwargs.items():
+            if hasattr(User, key):
+                update_source[getattr(User, key)] = value
+            else:
+                raise ValueError()
+        self._session.query(User).filter(User.id == user_id).update(
+            update_source,
+            synchronize_session=False,
+        )
+        self._session.commit()
