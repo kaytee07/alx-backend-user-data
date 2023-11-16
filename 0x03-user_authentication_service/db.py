@@ -43,34 +43,3 @@ class DB:
             self._session.rollback()
             new_user = None
         return new_user
-
-    def find_user_by(self, **kwargs) -> User:
-        """
-        find user by certain key constraint
-        """
-        query = self._session.query(User)
-        for key, value in kwargs.items():
-            if hasattr(User, key):
-                query = query.filter(getattr(User, key) == value)
-            else:
-                raise InvalidRequestError()
-        user = query.first()
-        if user is None:
-            raise NoResultFound()
-        return user
-
-    def update_user(self, user_id: int, **kwargs) -> None:
-        """
-        find user by id and update user with new details
-        """
-        user = self.find_user_by(id=user_id)
-        update_source = {}
-        if user:
-            for key, value in kwargs.items():
-                if hasattr(User, key):
-                    setattr(user, key, value)
-                else:
-                    raise ValueError()
-            self._session.commit()
-        else:
-            return
